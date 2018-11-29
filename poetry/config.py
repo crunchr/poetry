@@ -13,6 +13,20 @@ from .utils._compat import Path
 from .utils.toml_file import TomlFile
 
 
+class MultiConfig:
+
+    def __init__(self, local_config, config):
+        self.local_config = local_config
+        self.config = config
+
+    def setting(self, setting_name, default=None):
+        return self.local_config.setting(setting_name, self.config.setting(setting_name, default))
+
+    @classmethod
+    def create(cls, file):
+        return cls(Config.create(file), Config.create(file.replace('.toml', '-poetry.toml'), os.getcwd()))
+
+
 class Config:
     def __init__(self, file):  # type: (TomlFile) -> None
         self._file = file

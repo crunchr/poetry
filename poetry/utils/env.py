@@ -13,7 +13,7 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 
-from poetry.config import Config
+from poetry.config import MultiConfig
 from poetry.locations import CACHE_DIR
 from poetry.utils._compat import Path
 from poetry.utils._compat import decode
@@ -167,13 +167,13 @@ class Env(object):
 
                 return VirtualEnv(venv)
 
-            config = Config.create("config.toml")
-            create_venv = config.setting("settings.virtualenvs.create", True)
+            config_with_local = MultiConfig.create("config.toml")
+            create_venv = config_with_local.setting("settings.virtualenvs.create", True)
 
             if not create_venv:
                 return SystemEnv(Path(sys.prefix))
 
-            venv_path = config.setting("settings.virtualenvs.path")
+            venv_path = config_with_local.setting("settings.virtualenvs.path")
             if venv_path is None:
                 venv_path = Path(CACHE_DIR) / "virtualenvs"
             else:
@@ -210,7 +210,7 @@ class Env(object):
             # Already inside a virtualenv.
             return env
 
-        config = Config.create("config.toml")
+        config = MultiConfig.create("config.toml")
 
         create_venv = config.setting("settings.virtualenvs.create")
         root_venv = config.setting("settings.virtualenvs.in-project")

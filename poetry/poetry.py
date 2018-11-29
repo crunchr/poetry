@@ -7,7 +7,7 @@ from typing import Dict
 from typing import List
 
 from .__version__ import __version__
-from .config import Config
+from .config import MultiConfig
 from .json import validate_object
 from .packages import Dependency
 from .packages import Locker
@@ -38,8 +38,8 @@ class Poetry:
         self._package = package
         self._local_config = local_config
         self._locker = locker
-        self._config = Config.create("config.toml")
-        self._auth_config = Config.create("auth.toml")
+        self._config = MultiConfig.create("config.toml")
+        self._auth_config = MultiConfig.create("auth.toml")
 
         # Configure sources
         self._pool = Pool()

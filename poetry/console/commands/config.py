@@ -1,5 +1,6 @@
 import json
 import re
+import os
 
 from .command import Command
 
@@ -22,6 +23,7 @@ class ConfigCommand(Command):
         { value?* : Setting value. }
         { --list : List configuration settings }
         { --unset : Unset configuration setting }
+        { --local : Use a local (project) configuration file }
     """
 
     help = """This command allows you to edit the poetry config settings and repositories.
@@ -34,15 +36,6 @@ To remove a repository (repo is a short alias for repositories):
 
     <comment>poetry config --unset repo.foo</comment>
 """
-
-    def __init__(self):
-        from poetry.config import Config
-
-        super(ConfigCommand, self).__init__()
-
-        self._config = Config.create("config.toml")
-        self._auth_config = Config.create("auth.toml")
-
     @property
     def unique_config_values(self):
         from poetry.locations import CACHE_DIR
@@ -75,6 +68,17 @@ To remove a repository (repo is a short alias for repositories):
         from poetry.utils._compat import decode
 
         super(ConfigCommand, self).initialize(i, o)
+
+        local = self.option("local")
+
+        from poetry.config import Config
+        if local:
+            project_dir = os.getcwd()
+            self._config = Config.create("poetry-config.toml", project_dir)
+            self._auth_config = Config.create("poetry-auth.toml", project_dir)
+        else:
+            self._config = Config.create("config.toml")
+            self._auth_config = Config.create("auth.toml")
 
         # Create config file if it does not exist
         if not self._config.file.exists():
